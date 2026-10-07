@@ -1,0 +1,86 @@
+# RumiVirtualMachine
+るみの作るVM言語用VM！
+JVMより高速に動いてほしいという願望のもと
+
+# 特徴
+- 省メモリ
+- 高速に処理を行うAPI群
+- シンプルな機械語
+
+# 機械語
+データ読み込み
+- LOAD dst src
+- CLER target
+- MOV dst stc
+
+演算
+- ADD dst 被加数 加数
+- SUB dst 被減数 減数
+- MUL dst 被乗数 乗数
+- DIV dst 被除数 除数
+- IMUL dst 被乗数 乗数
+- IDIV dst 被除数 除数
+- NEG dst src
+
+論理演算
+- AND dst src1 src2
+- OR dst src1 src2
+- XOR dst src1 src2
+- NOT dst src1 src2
+
+ビットシフト
+- SHL dst src count
+- SHR dst src count
+
+メモリ操作
+- VAC PtrDst src
+- VAL PtrDst ptr
+- VAU ptr
+
+ジャンプ等
+- GOTO ptr
+- CALL ptr
+- RETN
+- IFEQ x y ptr
+- IFNQ x y ptr
+- IFIZ x y ptr
+- IFMZ x y ptr
+- IFIK x y ptr
+- IFMM x y ptr
+
+システムコール
+- SYSCALL select
+
+IO操作
+- IOIN dst id
+- IOOUT id src
+- IOCLOSE id
+
+スタック
+- POP dst
+- PUSH src
+
+# レジスタ
+- 汎用レジスタ
+AA〜AZ
+
+- フラグ
+ZF
+OF
+
+- プログラムカウンタ
+PC
+
+- スタック
+SP
+
+# API
+## ファイルAPI
+
+## 画面API
+
+## 数学API
+
+## 画像API
+
+## 入力
