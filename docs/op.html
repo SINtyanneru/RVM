@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<HTML>
+	<HEAD>
+		<TITLE>命令セット</TITLE>
+
+		<STYLE>
+			*[data-opx], *[data-opy], *[data-opz]{
+				text-align: center;
+			}
+			*[data-opx]{
+				background-color: aquamarine;
+			}
+			
+			*[data-opy]{
+				background-color: hotpink;
+			}
+
+			*[data-opz]{
+				background-color: lime;
+			}
+		</STYLE>
+	</HEAD>
+	<BODY>
+		<H1>命令セット</H1>
+		RISC-Vをちょっと参考に<BR>
+
+		<H2>即値、仮想レジスタ、テーブルの識別</H2>
+		RVMにはLOAD系命令、STORE系命令、MOV系命令がある。<BR>
+		<UL>
+			<LI>LOADはテーブルからレジスタにロードする。</LI>
+			<LI>STOREはレジスタからテーブルに</LI>
+			<LI>MOVは即値をレジスタに</LI>
+		</UL>
+		基本的に、算術系命令はレジスタしか受け付けない。<BR>
+		命令によって受け付けるオペランドを変えることで解決した。<BR>
+
+		<H2>エンコード</H2>
+		命令のエンコードは独自方式<BR>
+		Cのstructで表す方がわかりやすいと思うのでそうする<BR>
+		<PRE>
+typedef struct {
+	//オペコード
+	uint8_t opcode;
+	//オペランドX
+	uint64_t opland_x;
+	//オペランドY
+	uint64_t opland_y;
+	//オペランドZ
+	uint64_t opland_z;
+} OP;
+		</PRE>
+		図で示すとこう
+		<PRE>[オペコード(8bit)][オペランドX(64bit)][オペランドY(64bit)][オペランドZ(64bit)]</PRE>
+
+		<H2>命令一覧</H2>
+		<TABLE BORDER="1">
+			<TR>
+				<TH>名前</TH>
+				<TH>オペコード(16進数)</TH>
+				<TH>何をする？</TH>
+				<TH data-opx>オペランドX</TH>
+				<TH data-opy>オペランドY</TH>
+				<TH data-opz>オペランドZ</TH>
+			</TR>
+
+			<TR>
+				<TH COLSPAN="6">ゴミ</TH>
+			</TR>
+			<TR>
+				<TD>NOPE</TD>
+				<TD>0x00</TD>
+				<TD>何もしない</TD>
+				<TD data-opx></TD>
+				<TD data-opy></TD>
+				<TD data-opz></TD>
+			</TR>
+
+			<TR>
+				<TH COLSPAN="6">データ転送命令</TH>
+			</TR>
+			<TR>
+				<TD>MOV</TD>
+				<TD>0x10</TD>
+				<TD>即値をレジスタに</TD>
+				<TD data-opx>宛先レジスタ</TD>
+				<TD data-opy>即値</TD>
+				<TD data-opz></TD>
+			</TR>
+			<TR>
+				<TD>STORE</TD>
+				<TD>0x15</TD>
+				<TD>レジスタからテーブルに</TD>
+				<TD data-opx>宛先テーブル</TD>
+				<TD data-opy>レジスタ</TD>
+				<TD data-opz></TD>
+			</TR>
+			<TR>
+				<TD>LOAD</TD>
+				<TD>0x1A</TD>
+				<TD>テーブルからレジスタへ</TD>
+				<TD data-opx>宛先レジスタ</TD>
+				<TD data-opy>テーブル</TD>
+				<TD data-opz></TD>
+			</TR>
+
+			<TR>
+				<TH COLSPAN="6">算術命令</TH>
+			</TR>
+
+			<TR>
+				<TD>ADD</TD>
+				<TD>0x20</TD>
+				<TD>加算</TD>
+				<TD data-opx>宛先レジスタ</TD>
+				<TD data-opy>被加数レジスタ</TD>
+				<TD data-opz>加数レジスタ</TD>
+			</TR>
+			<TR>
+				<TD>SUB</TD>
+				<TD>0x21</TD>
+				<TD>減算</TD>
+				<TD data-opx>宛先レジスタ</TD>
+				<TD data-opy>被減数レジスタ</TD>
+				<TD data-opz>減数レジスタ</TD>
+			</TR>
+			<TR>
+				<TD>DIV</TD>
+				<TD>0x22</TD>
+				<TD>除算</TD>
+				<TD data-opx>宛先レジスタ</TD>
+				<TD data-opy>被除数レジスタ</TD>
+				<TD data-opz>除数レジスタ</TD>
+			</TR>
+			<TR>
+				<TD>MUL</TD>
+				<TD>0x23</TD>
+				<TD>乗算</TD>
+				<TD data-opx>宛先レジスタ</TD>
+				<TD data-opy>被乗数レジスタ</TD>
+				<TD data-opz>乗数レジスタ</TD>
+			</TR>
+			<TR>
+				<TD>IDIV</TD>
+				<TD>0x24</TD>
+				<TD>除算(符号付き)</TD>
+				<TD data-opx>宛先レジスタ</TD>
+				<TD data-opy>被除数レジスタ</TD>
+				<TD data-opz>除数レジスタ</TD>
+			</TR>
+			<TR>
+				<TD>IMUL</TD>
+				<TD>0x25</TD>
+				<TD>乗算(符号付き)</TD>
+				<TD data-opx>宛先レジスタ</TD>
+				<TD data-opy>被乗数レジスタ</TD>
+				<TD data-opz>乗数レジスタ</TD>
+			</TR>
+
+			<TR>
+				<TH COLSPAN="6">論理演算命令</TH>
+			</TR>
+			<TR>
+				<TD>AND</TD>
+				<TD>0x30</TD>
+				<TD>AND演算</TD>
+				<TD data-opx>宛先レジスタ</TD>
+				<TD data-opy>被数レジスタ</TD>
+				<TD data-opz>数レジスタ</TD>
+			</TR>
+			<TR>
+				<TD>OR</TD>
+				<TD>0x31</TD>
+				<TD>OR演算</TD>
+				<TD data-opx>宛先レジスタ</TD>
+				<TD data-opy>被数レジスタ</TD>
+				<TD data-opz>数レジスタ</TD>
+			</TR>
+			<TR>
+				<TD>XOR</TD>
+				<TD>0x32</TD>
+				<TD>XOR演算</TD>
+				<TD data-opx>宛先レジスタ</TD>
+				<TD data-opy>被数レジスタ</TD>
+				<TD data-opz>数レジスタ</TD>
+			</TR>
+			<TR>
+				<TD>NOT</TD>
+				<TD>0x33</TD>
+				<TD>NOT演算</TD>
+				<TD data-opx>宛先レジスタ</TD>
+				<TD data-opy>被数レジスタ</TD>
+				<TD data-opz>数レジスタ</TD>
+			</TR>
+
+			<TR>
+				<TH COLSPAN="6">ビットシフト命令</TH>
+			</TR>
+			<TR>
+				<TD>SHL</TD>
+				<TD>0x41</TD>
+				<TD>左にビットシフト</TD>
+				<TD data-opx>宛先レジスタ</TD>
+				<TD data-opy>被数レジスタ</TD>
+				<TD data-opz>数レジスタ</TD>
+			</TR>
+			<TR>
+				<TD>SHR</TD>
+				<TD>0x42</TD>
+				<TD>右にビットシフト</TD>
+				<TD data-opx>宛先レジスタ</TD>
+				<TD data-opy>被数レジスタ</TD>
+				<TD data-opz>数レジスタ</TD>
+			</TR>
+
+			<TR>
+				<TH COLSPAN="6">ジャンプ命令</TH>
+			</TR>
+			<TR>
+				<TD>GOTO</TD>
+				<TD>0x50</TD>
+				<TD>無条件ジャンプ</TD>
+				<TD data-opx>ジャンプ先アドレス</TD>
+				<TD data-opy></TD>
+				<TD data-opz></TD>
+			</TR>
+			<TR>
+				<TD>CALL</TD>
+				<TD>0x51</TD>
+				<TD>
+					無条件ジャンプ<BR>
+					ただしジャンプ先でRETNしたら帰ってくる
+				</TD>
+				<TD data-opx>ジャンプ先アドレス</TD>
+				<TD data-opy></TD>
+				<TD data-opz></TD>
+			</TR>
+			<TR>
+				<TD>RETN</TD>
+				<TD>0x52</TD>
+				<TD>
+					CALLされた先で帰ってくる用<BR>
+					特に返り値を設定するみたいな機能はない
+				</TD>
+				<TD data-opx>ジャンプ先アドレス</TD>
+				<TD data-opy></TD>
+				<TD data-opz></TD>
+			</TR>
+			<TR>
+				<TD>GTEQ</TD>
+				<TD>0x53</TD>
+				<TD>結果レジスタの値が1ならジャンプ、そうれなければスルー</TD>
+				<TD data-opx>ジャンプ先アドレス</TD>
+				<TD data-opy>結果レジスタ</TD>
+				<TD data-opz></TD>
+			</TR>
+			<TR>
+				<TD>GTNE</TD>
+				<TD>0x53</TD>
+				<TD>結果レジスタの値が0ならジャンプ、そうれなければスルー</TD>
+				<TD data-opx>ジャンプ先アドレス</TD>
+				<TD data-opy>結果レジスタ</TD>
+				<TD data-opz></TD>
+			</TR>
+
+			<TR>
+				<TH COLSPAN="6">IF命令</TH>
+			</TR>
+			<TR>
+				<TD>IFEQ</TD>
+				<TD>0x60</TD>
+				<TD>XとYが同一なら結果レジスタに1を、そうでなければ0を</TD>
+				<TD data-opx>結果レジスタ</TD>
+				<TD data-opy>X</TD>
+				<TD data-opz>Y</TD>
+			</TR>
+			<TR>
+				<TD>[無し？]IFNE</TD>
+				<TD>0x61</TD>
+				<TD>XとYが同一でなければ結果レジスタに1を、そうでなければ0を</TD>
+				<TD data-opx>結果レジスタ</TD>
+				<TD data-opy>X</TD>
+				<TD data-opz>Y</TD>
+			</TR>
+			<TR>
+				<TD>IFIZ</TD>
+				<TD>0x62</TD>
+				<TD>XがY以上なら結果レジスタに1を</TD>
+				<TD data-opx>結果レジスタ</TD>
+				<TD data-opy>X</TD>
+				<TD data-opz>Y</TD>
+			</TR>
+			<TR>
+				<TD>IFMZ</TD>
+				<TD>0x63</TD>
+				<TD>XがY未上なら結果レジスタに1を</TD>
+				<TD data-opx>結果レジスタ</TD>
+				<TD data-opy>X</TD>
+				<TD data-opz>Y</TD>
+			</TR>
+			<TR>
+				<TD>IFIK</TD>
+				<TD>0x64</TD>
+				<TD>XがY以下なら結果レジスタに1を</TD>
+				<TD data-opx>結果レジスタ</TD>
+				<TD data-opy>X</TD>
+				<TD data-opz>Y</TD>
+			</TR>
+			<TR>
+				<TD>IFMM</TD>
+				<TD>0x65</TD>
+				<TD>XがY未満なら結果レジスタに1を</TD>
+				<TD data-opx>結果レジスタ</TD>
+				<TD data-opy>X</TD>
+				<TD data-opz>Y</TD>
+			</TR>
+
+			<TR>
+				<TH COLSPAN="6">スタック操作命令</TH>
+			</TR>
+			<TR>
+				<TD>PUSH</TD>
+				<TD>0x70</TD>
+				<TD>スタックに追加</TD>
+				<TD data-opx>追加する値のレジスタ</TD>
+				<TD data-opy></TD>
+				<TD data-opz></TD>
+			</TR>
+			<TR>
+				<TD>PUSH</TD>
+				<TD>0x71</TD>
+				<TD>スタックから取り出し</TD>
+				<TD data-opx>書き込み先レジスタ</TD>
+				<TD data-opy></TD>
+				<TD data-opz></TD>
+			</TR>
+
+			<TR>
+				<TH COLSPAN="6">テーブル操作命令</TH>
+			</TR>
+			<TR>
+				<TD>TBCR</TD>
+				<TD>0x80</TD>
+				<TD>テーブルに領域を確保し、リンクを作成する</TD>
+				<TD data-opx>リンクアドレス</TD>
+				<TD data-opy>確保するサイズ</TD>
+				<TD data-opz></TD>
+			</TR>
+			<TR>
+				<TD>TBWR</TD>
+				<TD>0x81</TD>
+				<TD>確保した領域に値を書き込む</TD>
+				<TD data-opx>アドレス</TD>
+				<TD data-opy>書き込むデータ(下位8bitのみ読まれます)</TD>
+				<TD data-opz></TD>
+			</TR>
+			<TR>
+				<TD>TBUL</TD>
+				<TD>0x82</TD>
+				<TD>確保した領域へのリンクを絶ちます</TD>
+				<TD data-opx>リンクアドレス</TD>
+				<TD data-opy></TD>
+				<TD data-opz></TD>
+			</TR>
+			<TR>
+				<TD>TBLK</TD>
+				<TD>0x83</TD>
+				<TD>確保した領域へのリンクを作る</TD>
+				<TD data-opx>リンクアドレス</TD>
+				<TD data-opy>リンク先リンクアドレス</TD>
+				<TD data-opz></TD>
+			</TR>
+
+			<TR>
+				<TH COLSPAN="6">I/O操作命令</TH>
+			</TR>
+
+			<TR>
+				<TH COLSPAN="6">特殊命令</TH>
+			</TR>
+			<TR>
+				<TD>SYSCALL</TD>
+				<TD>0xB0</TD>
+				<TD>RVM APIを呼び出す</TD>
+				<TD data-opx>呼び出すAPI</TD>
+				<TD data-opy></TD>
+				<TD data-opz></TD>
+			</TR>
+			<TR>
+				<TD>EXIT</TD>
+				<TD>0xB1</TD>
+				<TD>システムを終了する</TD>
+				<TD data-opx></TD>
+				<TD data-opy></TD>
+				<TD data-opz></TD>
+			</TR>
+		</TABLE>
+	</BODY>
+</HTML>
